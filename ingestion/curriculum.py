@@ -1,0 +1,1 @@
+"""(Future) ordered curriculum ingestion."""

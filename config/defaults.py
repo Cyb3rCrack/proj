@@ -1,0 +1,1 @@
+"""Default constants (future)."""
