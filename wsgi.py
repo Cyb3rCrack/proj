@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-Production server launcher with Sentry integration, health checks, and caching.
-"""
-
 import os
 import logging
 import signal
