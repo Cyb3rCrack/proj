@@ -1,8 +1,9 @@
-"""Production-ready REST API for Zypherus with authentication, validation, and documentation."""
+﻿"""Production-ready REST API for Zypherus with authentication, validation, and documentation."""
 
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 from typing import Any, Dict, Optional
 from functools import wraps
@@ -10,8 +11,10 @@ from datetime import datetime
 from dataclasses import dataclass
 import json
 
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, Response, request, jsonify, make_response, stream_with_context
 from flask_cors import CORS
+
+from .conversation_store import ConversationStore
 
 HAS_FLASK = True
 
@@ -87,6 +90,10 @@ class ZypherusAPIServer:
         
         # CORS setup
         CORS(app, resources={r"/api/*": {"origins": "*"}})  # type: ignore[misc]
+
+        # Conversation storage
+        chat_db_path = os.getenv("CHAT_DB_PATH", os.path.join("data", "chat.db"))
+        app.conversation_store = ConversationStore(chat_db_path)  # type: ignore[attr-defined]
         
         # Register error handlers
         self._register_error_handlers(app)
@@ -175,31 +182,330 @@ class ZypherusAPIServer:
     
     def _register_routes(self, app: Flask) -> None:  # type: ignore[name-defined]
         """Register API routes."""
-        
+
+        def _format_messages(messages: list[dict[str, str]]) -> str:
+            lines = []
+            for msg in messages:
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                if role == "assistant":
+                    prefix = "Assistant"
+                elif role == "system":
+                    prefix = "System"
+                else:
+                    prefix = "User"
+                lines.append(f"{prefix}: {content}")
+            return "\n".join(lines)
+
+        def _build_prompt(system_prompt: str, messages: list[dict[str, str]]) -> str:
+            formatted = _format_messages(messages)
+            return f"System: {system_prompt}\n\n{formatted}\nAssistant:"
+
         # Root endpoint
         @app.route("/", methods=["GET"])
         def root():
-            """Root endpoint with API information."""
-            return jsonify({
-                "success": True,
-                "name": "Zypherus API",
-                "version": "0.2.0",
-                "status": "operational",
-                "documentation": "/api/docs",
-                "endpoints": {
-                    "health": "/health",
-                    "answer": "/api/answer [POST]",
-                    "ingest": "/api/ingest [POST]",
-                    "search": "/api/search [POST]",
-                    "status": "/api/status",
-                    "memory": "/api/memory",
-                    "beliefs": "/api/beliefs",
-                    "concepts": "/api/concepts",
-                    "stats": "/api/stats",
-                    "docs": "/api/docs"
-                },
-                "timestamp": datetime.utcnow().isoformat()
-            }), 200
+                """Root endpoint with API information."""
+                return jsonify({
+                        "success": True,
+                        "name": "Zypherus API",
+                        "version": "0.2.0",
+                        "status": "operational",
+                        "documentation": "/api/docs",
+                        "endpoints": {
+                                "health": "/health",
+                                "chat_ui": "/chat",
+                                "chat": "/api/chat [POST]",
+                                "answer": "/api/answer [POST]",
+                                "ingest": "/api/ingest [POST]",
+                                "search": "/api/search [POST]",
+                                "status": "/api/status",
+                                "memory": "/api/memory",
+                                "beliefs": "/api/beliefs",
+                                "concepts": "/api/concepts",
+                                "stats": "/api/stats",
+                                "docs": "/api/docs"
+                        },
+                        "timestamp": datetime.utcnow().isoformat()
+                }), 200
+
+        # Simple chat UI
+        @app.route("/chat", methods=["GET"])
+        def chat_ui():
+                """Minimal chat UI for streaming conversations."""
+                html = """<!doctype html>
+<html lang=\"en\">
+    <head>
+        <meta charset=\"utf-8\" />
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+        <title>Zypherus Chat</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
+            :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --accent: #22c55e;
+        --accent-2: #38bdf8;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+            }
+            * { box-sizing: border-box; }
+            body {
+        margin: 0;
+        font-family: 'Space Grotesk', system-ui, -apple-system, Segoe UI, sans-serif;
+        color: var(--text);
+        background: radial-gradient(1200px 800px at 10% 10%, #1e293b, #0b1020 60%) fixed;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+            }
+            .shell {
+        width: min(980px, 95vw);
+        background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(15,23,42,0.95));
+        border: 1px solid rgba(148,163,184,0.2);
+        border-radius: 20px;
+        box-shadow: 0 30px 70px rgba(2, 6, 23, 0.6);
+        overflow: hidden;
+            }
+            header {
+        padding: 20px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid rgba(148,163,184,0.15);
+        background: rgba(15,23,42,0.8);
+            }
+            .badge {
+        font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+        color: #0f172a;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        padding: 4px 10px;
+        border-radius: 999px;
+            }
+            h1 {
+        font-size: 20px;
+        margin: 0;
+        font-weight: 600;
+            }
+            .sub {
+        color: var(--muted);
+        font-size: 14px;
+            }
+            .chat {
+        padding: 20px 24px;
+        height: min(70vh, 560px);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+            }
+            .msg {
+        max-width: 80%;
+        padding: 12px 14px;
+        border-radius: 14px;
+        line-height: 1.5;
+        animation: fadeIn 0.2s ease-out;
+        white-space: pre-wrap;
+            }
+            .msg.user {
+        align-self: flex-end;
+        background: rgba(34,197,94,0.15);
+        border: 1px solid rgba(34,197,94,0.35);
+            }
+            .msg.assistant {
+        align-self: flex-start;
+        background: rgba(56,189,248,0.12);
+        border: 1px solid rgba(56,189,248,0.35);
+            }
+            .input-bar {
+        display: flex;
+        gap: 12px;
+        padding: 18px 24px 22px;
+        border-top: 1px solid rgba(148,163,184,0.15);
+        background: rgba(15,23,42,0.85);
+            }
+            textarea {
+        flex: 1;
+        min-height: 48px;
+        max-height: 140px;
+        resize: vertical;
+        border-radius: 12px;
+        border: 1px solid rgba(148,163,184,0.25);
+        background: rgba(2,6,23,0.6);
+        color: var(--text);
+        padding: 12px;
+        font-size: 14px;
+            }
+            button {
+        font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border: none;
+        color: #0b1020;
+        padding: 12px 18px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+            }
+            button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+            }
+            @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+    </head>
+    <body>
+        <div class=\"shell\">
+            <header>
+        <span class=\"badge\">LIVE</span>
+        <div>
+            <h1>Zypherus Chat</h1>
+            <div class=\"sub\">Streaming SSE - Conversation memory enabled</div>
+        </div>
+            </header>
+            <div id=\"chat\" class=\"chat\"></div>
+            <div class=\"input-bar\">
+        <textarea id=\"input\" placeholder=\"Ask Zypherus something...\"></textarea>
+        <button id=\"send\" onclick=\"sendMessage()\">Send</button>
+            </div>
+        </div>
+        <script>
+            const chat = document.getElementById('chat');
+            const input = document.getElementById('input');
+            const sendBtn = document.getElementById('send');
+            let conversationId = null;
+
+            function addMessage(role, text) {
+        const bubble = document.createElement('div');
+        bubble.className = `msg ${role}`;
+        bubble.textContent = text;
+        chat.appendChild(bubble);
+        chat.scrollTop = chat.scrollHeight;
+        return bubble;
+            }
+
+            async function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
+        addMessage('user', message);
+        input.value = '';
+        sendBtn.disabled = true;
+
+        const payload = {
+            message,
+            conversation_id: conversationId,
+            stream: true
+        };
+
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!conversationId) {
+            conversationId = res.headers.get('X-Conversation-Id');
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let assistantText = '';
+        const assistantBubble = addMessage('assistant', '');
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                const data = line.slice(6);
+                if (data === '[DONE]') {
+                    sendBtn.disabled = false;
+                    return;
+                }
+                assistantText += data;
+                assistantBubble.textContent = assistantText;
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+        sendBtn.disabled = false;
+            }
+        </script>
+    </body>
+</html>
+"""
+                return Response(html, mimetype="text/html")
+
+        # Stateful chat
+        @app.route("/api/chat", methods=["POST"])
+        def chat():
+                """Stateful chat endpoint with optional streaming."""
+                data = request.get_json() or {}
+                message = str(data.get("message", "")).strip()
+                stream = bool(data.get("stream", True))
+                conversation_id = data.get("conversation_id") or str(uuid.uuid4())
+
+                if not message:
+                        return jsonify(APIResponse(
+                                success=False,
+                                error="INVALID_INPUT",
+                                data={"message": "Message cannot be empty"},
+                                request_id=getattr(request, "request_id", None)
+                        ).to_dict()), 400
+
+                store = getattr(app, "conversation_store", None)
+                if store is None:
+                        return jsonify(APIResponse(
+                                success=False,
+                                error="CHAT_STORE_UNAVAILABLE",
+                                data={"message": "Conversation store not initialized"},
+                                request_id=getattr(request, "request_id", None)
+                        ).to_dict()), 500
+
+                messages = store.append_message(conversation_id, "user", message)
+                max_history = int(os.getenv("CHAT_HISTORY_MAX", "20"))
+                system_prompt = os.getenv(
+                        "ZYPHERUS_SYSTEM_PROMPT",
+                        "You are Zypherus, an intelligent, conversational AI. You remember past context and respond naturally."
+                ).strip()
+                recent = messages[-max_history:] if max_history > 0 else messages
+                prompt = _build_prompt(system_prompt, recent)
+
+                if stream:
+                        def event_stream():
+                                chunks = []
+                                try:
+                                        for chunk in self.ace.llm.stream(prompt, max_tokens=self.ace.llm.tokens_answer):
+                                                chunks.append(chunk)
+                                                yield f"data: {chunk}\n\n"
+                                finally:
+                                        reply = "".join(chunks).strip()
+                                        store.append_message(conversation_id, "assistant", reply)
+                                        yield "data: [DONE]\n\n"
+
+                        headers = {
+                                "Cache-Control": "no-cache",
+                                "X-Accel-Buffering": "no",
+                                "X-Conversation-Id": conversation_id,
+                        }
+                        return Response(
+                                stream_with_context(event_stream()),
+                                mimetype="text/event-stream",
+                                headers=headers,
+                        )
+
+                reply = self.ace.llm.generate(prompt, max_tokens=self.ace.llm.tokens_answer)
+                store.append_message(conversation_id, "assistant", reply)
+                return jsonify({
+                        "conversation_id": conversation_id,
+                        "reply": reply,
+                        "tokens": len(reply.split())
+                }), 200
         
         # Health check
         @app.route("/health", methods=["GET"])
@@ -605,6 +911,10 @@ class ZypherusAPIServer:
                         "GET /health": "Service health check"
 ,
                         "GET /api/status": "System status and metrics"
+                    },
+                    "Chat": {
+                        "POST /api/chat": "Stateful chat (supports streaming SSE)",
+                        "GET /chat": "Minimal chat UI"
                     },
                     "Ingestion": {
                         "POST /api/ingest": "Ingest document or text"

@@ -11,7 +11,7 @@ import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -347,6 +347,90 @@ class LLMRenderer:
 				logger.error(f"Ollama error: {type(e).__name__}: {e} (model={model})")
 
 		return ""
+
+	def stream(
+		self,
+		prompt: str,
+		*,
+		max_tokens: Optional[int] = None,
+		deadline_s: Optional[float] = None,
+		temperature: float = 0.7,
+	) -> Iterator[str]:
+		"""Stream tokens from the configured Ollama model.
+
+		Yields chunks of text as they arrive. Returns silently on failure/timeout.
+		"""
+		if max_tokens is None:
+			max_tokens = self.tokens_default
+
+		if deadline_s is None:
+			deadline_s = time.time() + self.total_budget_s
+		remaining = max(0.0, deadline_s - time.time())
+		if remaining <= 0.0:
+			logger.warning("stream() deadline already exceeded")
+			return
+
+		if self.circuit_breaker.is_open():
+			logger.warning("Circuit breaker open; skipping LLM stream")
+			return
+
+		read_timeout = min(self.request_timeout_s, remaining)
+		self.rate_limiter.wait()
+
+		for model in self._iter_models():
+			start = time.time()
+			self.metrics.requests += 1
+			try:
+				payload = {
+					"model": model,
+					"prompt": prompt,
+					"stream": True,
+					"num_predict": int(max_tokens),
+					"temperature": float(max(0.0, min(2.0, temperature))),
+				}
+				r = self.session.post(
+					f"{self.base_url}/api/generate",
+					json=payload,
+					timeout=(self.connect_timeout_s, read_timeout),
+					stream=True,
+				)
+				r.raise_for_status()
+
+				for line in r.iter_lines(decode_unicode=True):
+					if not line:
+						continue
+					try:
+						obj = json.loads(line)
+					except Exception:
+						continue
+					if isinstance(obj, dict) and obj.get("response"):
+						yield str(obj["response"])
+					if isinstance(obj, dict) and obj.get("done"):
+						break
+
+				latency = time.time() - start
+				self.metrics.total_latency_s += latency
+				self.metrics.last_latency_s = latency
+				self.circuit_breaker.record_success()
+				self.active_model = model
+				return
+			except requests.exceptions.Timeout:
+				self.metrics.timeouts += 1
+				self.metrics.last_error = "timeout"
+				self.circuit_breaker.record_failure()
+				logger.error(f"Ollama timeout after {read_timeout:.1f}s (model={model})")
+			except requests.exceptions.ConnectionError:
+				self.metrics.connection_errors += 1
+				self.metrics.last_error = "connection_error"
+				self.circuit_breaker.record_failure()
+				logger.error(f"Cannot connect to Ollama at {self.base_url} (model={model})")
+			except Exception as e:
+				self.metrics.other_errors += 1
+				self.metrics.last_error = f"{type(e).__name__}: {e}"
+				self.circuit_breaker.record_failure()
+				logger.error(f"Ollama error: {type(e).__name__}: {e} (model={model})")
+
+		return
 
 	def answer(
 		self,
