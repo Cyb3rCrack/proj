@@ -2,15 +2,11 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies and Ollama
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
-    wget \
     && rm -rf /var/lib/apt/lists/*
-
-# Download and install Ollama
-RUN curl -fsSL https://ollama.ai/install.sh | sh || true
 
 # Copy requirements first for better caching
 COPY requirements.txt* ./
@@ -32,12 +28,12 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start Ollama and Flask
-CMD ollama serve & sleep 3 && gunicorn \
-     --bind 0.0.0.0:8000 \
-     --workers 4 \
-     --worker-class sync \
-     --timeout 120 \
-     --access-logfile - \
-     --error-logfile - \
-     wsgi:app
+# Run with gunicorn
+CMD ["gunicorn", \
+     "--bind", "0.0.0.0:8000", \
+     "--workers", "4", \
+     "--worker-class", "sync", \
+     "--timeout", "120", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-", \
+     "wsgi:app"]
