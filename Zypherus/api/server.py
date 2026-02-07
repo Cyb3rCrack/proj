@@ -204,29 +204,8 @@ class ZypherusAPIServer:
         # Root endpoint
         @app.route("/", methods=["GET"])
         def root():
-                """Root endpoint with API information."""
-                return jsonify({
-                        "success": True,
-                        "name": "Zypherus API",
-                        "version": "0.2.0",
-                        "status": "operational",
-                        "documentation": "/api/docs",
-                        "endpoints": {
-                                "health": "/health",
-                                "chat_ui": "/chat",
-                                "chat": "/api/chat [POST]",
-                                "answer": "/api/answer [POST]",
-                                "ingest": "/api/ingest [POST]",
-                                "search": "/api/search [POST]",
-                                "status": "/api/status",
-                                "memory": "/api/memory",
-                                "beliefs": "/api/beliefs",
-                                "concepts": "/api/concepts",
-                                "stats": "/api/stats",
-                                "docs": "/api/docs"
-                        },
-                        "timestamp": datetime.utcnow().isoformat()
-                }), 200
+            """Serve the chat UI at the root URL."""
+            return chat_ui()
 
         # Simple chat UI
         @app.route("/chat", methods=["GET"])
