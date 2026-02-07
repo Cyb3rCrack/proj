@@ -40,4 +40,5 @@ dist/
 # Production deployment
 __obfuscated__/
 *.obfuscated.pyc
-railway_deploy/
+deploy/
+render_deploy/

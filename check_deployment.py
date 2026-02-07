@@ -39,7 +39,7 @@ class DeploymentChecker:
 
 def main():
     print("=" * 60)
-    print("ZYPHERUS RAILWAY DEPLOYMENT CHECKER")
+    print("ZYPHERUS RENDER DEPLOYMENT CHECKER")
     print("=" * 60)
 
     checker = DeploymentChecker()
@@ -52,10 +52,10 @@ def main():
     # Check required files
     checker.section("Required Deployment Files")
     checker.check("Procfile exists", os.path.exists("Procfile"))
-    checker.check("railway.toml exists", os.path.exists("railway.toml"))
-    checker.check(".railwayignore exists", os.path.exists(".railwayignore"))
+    checker.check("Dockerfile exists", os.path.exists("Dockerfile"))
+    checker.check(".renderignore exists", os.path.exists(".renderignore"))
     checker.check("requirements-prod.txt exists", os.path.exists("requirements-prod.txt"))
-    checker.check("build_release.py exists", os.path.exists("build_release.py"))
+    checker.check("setup.py exists", os.path.exists("setup.py"))
     checker.check("wsgi.py exists", os.path.exists("wsgi.py"))
     checker.check(".env.example exists", os.path.exists(".env.example"))
 
@@ -136,10 +136,10 @@ def main():
     if success:
         print("\n[SUCCESS] ALL CHECKS PASSED - Ready for deployment!")
         print("\nNext steps:")
-        print("  1. Commit changes: git add . && git commit -m 'Prepare for Railway deployment'")
-        print("  2. Push to main: git push origin main")
-        print("  3. Railway will auto-deploy")
-        print("  4. Monitor at: https://railway.app/dashboard")
+        print("  1. Commit changes: git add . && git commit -m 'Prepare for Render deployment'")
+        print("  2. Push to GitHub: git push origin main")
+        print("  3. Render will auto-deploy")
+        print("  4. Monitor at: https://dashboard.render.com")
         return 0
     else:
         print("\n[FAILED] DEPLOYMENT CHECK FAILED")

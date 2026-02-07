@@ -237,7 +237,7 @@ class ZypherusAPIServer:
                     "request_id": getattr(request, "request_id", None)
                 }), 503
         
-        # Readiness check (for Kubernetes/Railway)
+        # Readiness check (for Kubernetes/Render)
         @app.route("/ready", methods=["GET"])
         def ready():
             """Service readiness check."""

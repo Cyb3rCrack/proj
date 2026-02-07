@@ -1,0 +1,55 @@
+# Render Deployment Ignore Patterns
+# Files matching these patterns won't be deployed
+
+# Source code (use compiled .pyc bytecode only)
+*.py
+__pycache__/
+*.pyc
+
+# Development files
+.venv/
+.env
+.env.local
+.env.*.local
+.pytest_cache/
+.coverage
+.checkpoints/
+
+# Package metadata
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Version control
+.git/
+.github/
+.gitignore
+
+# Documentation
+*.md
+*.txt
+!requirements-prod.txt
+
+# Data/training files
+scripts/
+training_data/
+data/
+*.json
+!config/zypherus_config.json
+
+# Docker (Render handles builds natively)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# System files
+.DS_Store
+*~
+*.swp
+*.swo
+
+# Secrets
+.env
+*.pem
+*.key

@@ -84,8 +84,8 @@ def create_deployment_bundle():
         "*.md",  # Remove documentation
     ]
     
-    print("  Creating .railwayignore...")
-    with open(".railwayignore", "w") as f:
+    print("  Creating .renderignore...")
+    with open(".renderignore", "w") as f:
         for pattern in exclude_patterns:
             f.write(f"{pattern}\n")
     
@@ -110,14 +110,14 @@ def main():
     print("BUILD COMPLETE")
     print("=" * 60)
     print("\nDeployment files ready:")
-    print("  • Procfile - railway startup config")
+    print("  • Procfile - deployment startup config")
     print("  • requirements-prod.txt - dependencies")
-    print("  • .railwayignore - files to exclude")
+    print("  • .renderignore - files to exclude")
     print("  • .env.example - environment template")
     print("\nNext steps:")
-    print("  1. Set environment variables on Railway")
-    print("  2. Connect Git repository to Railway")
-    print("  3. Deploy with: railway up")
+    print("  1. Set environment variables on Render")
+    print("  2. Connect Git repository to Render")
+    print("  3. Deploy will auto-trigger on git push")
 
 if __name__ == "__main__":
     main()
