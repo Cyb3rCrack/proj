@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import time
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -352,6 +353,11 @@ class KnowledgeIndex:
 				}
 			)
 		payload = {"entries": out, "entity_index": self.entity_index}
+		
+		# Create directories if they don't exist
+		path_obj = Path(path)
+		path_obj.parent.mkdir(parents=True, exist_ok=True)
+		
 		with open(path, "w", encoding="utf-8") as f:
 			json.dump(payload, f, ensure_ascii=False, indent=2)
 

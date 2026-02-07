@@ -106,7 +106,14 @@ class ACE:
 		self.definitions = VersionedDefinitionStore()
 		self.source_reliability = SourceReliabilityRegistry()
 		self.dialogue = DialogueManager(max_turns=6)
-		self.llm = LLMRenderer()
+		
+		# Use Groq if API key is set, otherwise use Ollama
+		if os.getenv("GROQ_API_KEY"):
+			from Zypherus.llm.groq_renderer import GroqRenderer
+			self.llm = GroqRenderer()
+		else:
+			self.llm = LLMRenderer()
+		
 		self.distiller = Distiller(self.llm)
 		self.nli_checker = NLIContradictionChecker()
 
