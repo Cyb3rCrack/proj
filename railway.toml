@@ -1,6 +1,3 @@
-# Railway Deployment Configuration
-# This file configures how Railway builds and deploys your application
-
 [build]
 builder = "nixpacks"
 buildCommand = "python build_release.py && pip install -r requirements-prod.txt"
