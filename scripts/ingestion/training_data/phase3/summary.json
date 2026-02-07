@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-02-05T23:39:17.767575",
+  "total_items": 5,
+  "by_project": {
+    "kubernetes": 1,
+    "postgresql": 1,
+    "linux": 1,
+    "docker": 1,
+    "redis": 1
+  },
+  "by_category": {
+    "optimization": 2,
+    "architecture": 1,
+    "scaling": 1,
+    "security": 1
+  },
+  "quality_distribution": {
+    "bronze": 5
+  },
+  "average_quality_score": 0.45
+}

@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-02-05T23:23:46.019933",
+  "total_items": 71,
+  "collection_stats": {
+    "postmortems_fetched": 50,
+    "postmortems_extracted": 50,
+    "cves_fetched": 50,
+    "cves_extracted": 50,
+    "passed_gates": 100,
+    "deduplicated": 71
+  },
+  "source_distribution": {
+    "postmortem": 50,
+    "cve": 21
+  },
+  "quality_distribution": {
+    "bronze": 69,
+    "silver": 2
+  },
+  "avg_quality_score": 0.4401408450704225
+}

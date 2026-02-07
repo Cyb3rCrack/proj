@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-02-05T23:40:27.697888",
+  "phase": "final_phase3_projection",
+  "items_in_dataset": 282,
+  "items_at_scale": 577,
+  "baseline_scores": {
+    "explains_why": 0.35,
+    "flags_tradeoff": 0.28,
+    "mentions_constraint": 0.32,
+    "refuses_oversimplify": 0.25,
+    "suggests_alternatives": 0.3,
+    "acknowledges_uncertainty": 0.33,
+    "flags_missing_info": 0.29,
+    "flags_security": 0.27,
+    "flags_performance": 0.31,
+    "flags_scalability": 0.26
+  },
+  "post_phase12_scores": {
+    "explains_why": 0.58,
+    "flags_tradeoff": 0.51,
+    "mentions_constraint": 0.54,
+    "refuses_oversimplify": 0.48,
+    "suggests_alternatives": 0.52,
+    "acknowledges_uncertainty": 0.55,
+    "flags_missing_info": 0.53,
+    "flags_security": 0.51,
+    "flags_performance": 0.54,
+    "flags_scalability": 0.5
+  },
+  "projected_phase3_scores": {
+    "explains_why": 0.63,
+    "flags_tradeoff": 0.56,
+    "mentions_constraint": 0.5800000000000001,
+    "refuses_oversimplify": 0.52,
+    "suggests_alternatives": 0.56,
+    "acknowledges_uncertainty": 0.5900000000000001,
+    "flags_missing_info": 0.5700000000000001,
+    "flags_security": 0.55,
+    "flags_performance": 0.62,
+    "flags_scalability": 0.58
+  },
+  "improvement_phase12": {
+    "explains_why": 0.22999999999999998,
+    "flags_tradeoff": 0.22999999999999998,
+    "mentions_constraint": 0.22000000000000003,
+    "refuses_oversimplify": 0.22999999999999998,
+    "suggests_alternatives": 0.22000000000000003,
+    "acknowledges_uncertainty": 0.22000000000000003,
+    "flags_missing_info": 0.24000000000000005,
+    "flags_security": 0.24,
+    "flags_performance": 0.23000000000000004,
+    "flags_scalability": 0.24
+  },
+  "improvement_phase3": {
+    "explains_why": 0.28,
+    "flags_tradeoff": 0.28,
+    "mentions_constraint": 0.26000000000000006,
+    "refuses_oversimplify": 0.27,
+    "suggests_alternatives": 0.26000000000000006,
+    "acknowledges_uncertainty": 0.26000000000000006,
+    "flags_missing_info": 0.2800000000000001,
+    "flags_security": 0.28,
+    "flags_performance": 0.31,
+    "flags_scalability": 0.31999999999999995
+  },
+  "overall_baseline": 0.296,
+  "overall_post_phase12": 0.526,
+  "overall_projected_phase3": 0.5760000000000001
+}

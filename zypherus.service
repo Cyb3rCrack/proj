@@ -1,0 +1,50 @@
+[Unit]
+Description=Zypherus AI API Server
+Documentation=https://github.com/your-org/zypherus
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=zypherus
+Group=zypherus
+WorkingDirectory=/opt/zypherus
+
+# Environment
+EnvironmentFile=/etc/zypherus/zypherus.env
+Environment="PATH=/opt/zypherus/venv/bin"
+Environment="FLASK_ENV=production"
+Environment="API_HOST=127.0.0.1"
+Environment="API_PORT=8000"
+
+# Main process
+ExecStart=/opt/zypherus/venv/bin/gunicorn \
+    --bind 127.0.0.1:8000 \
+    --workers 4 \
+    --worker-class sync \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level info \
+    wsgi:app
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitInterval=300
+StartLimitBurst=5
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/zypherus/data
+
+# Process management
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=zypherus
+
+[Install]
+WantedBy=multi-user.target

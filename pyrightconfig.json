@@ -1,0 +1,11 @@
+{
+  "extraPaths": ["."],
+  "typeCheckingMode": "standard",
+  "exclude": [
+    "**/*.ps1",
+    "scripts/**",
+    ".venv/**"
+  ],
+  "reportMissingTypeStubs": false,
+  "reportUnusedImport": false
+}

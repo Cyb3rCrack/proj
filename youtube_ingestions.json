@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "ingestions": [
+    {
+      "timestamp": "2026-02-05T03:48:44.502908",
+      "video_id": "LHsgtcNNM0A",
+      "video_url": "https://www.youtube.com/watch?v=LHsgtcNNM0A",
+      "video_title": "Gen AI & Reinforcement Learning- Computerphile",
+      "channel": "Computerphile",
+      "chunks_ingested": 32,
+      "total_chunks": 33,
+      "ingestion_rate": "97.0%",
+      "status": "success"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-02-05T23:45:05.475401",
+  "total_items": 300,
+  "by_category": {
+    "security": 34,
+    "refactoring": 56,
+    "feature": 33,
+    "architecture": 33,
+    "scaling": 48,
+    "optimization": 39,
+    "reliability": 57
+  },
+  "by_quality_tier": {
+    "gold": 121,
+    "bronze": 66,
+    "silver": 113
+  },
+  "by_project": {
+    "redis": 25,
+    "etcd": 34,
+    "kubernetes": 28,
+    "postgresql": 42,
+    "cockroachdb": 26,
+    "docker": 24,
+    "cassandra": 29,
+    "linux": 32,
+    "prometheus": 36,
+    "nginx": 24
+  },
+  "average_quality": 0.6384797461389149
+}

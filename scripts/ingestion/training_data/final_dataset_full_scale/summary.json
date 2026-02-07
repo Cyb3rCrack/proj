@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-05T23:47:36.197946",
+  "total_items": 577,
+  "phase1_count": 206,
+  "phase2_count": 71,
+  "phase3_count": 300,
+  "distribution": {
+    "phase1_pct": 35.70190641247834,
+    "phase2_pct": 12.305025996533795,
+    "phase3_pct": 51.99306759098787
+  },
+  "note": "PRODUCTION SCALE: Full Phase 3 with 300 items"
+}

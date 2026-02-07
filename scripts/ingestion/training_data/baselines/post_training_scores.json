@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-02-05T23:36:58.370695",
+  "post_training_scores": {
+    "explains_why": 0.58,
+    "flags_tradeoff": 0.51,
+    "mentions_constraint": 0.54,
+    "refuses_oversimplify": 0.48,
+    "suggests_alternatives": 0.52,
+    "acknowledges_uncertainty": 0.55,
+    "flags_missing_info": 0.53,
+    "flags_security": 0.51,
+    "flags_performance": 0.54,
+    "flags_scalability": 0.5
+  },
+  "improvement": {
+    "explains_why": 0.22999999999999998,
+    "flags_tradeoff": 0.22999999999999998,
+    "mentions_constraint": 0.22000000000000003,
+    "refuses_oversimplify": 0.22999999999999998,
+    "suggests_alternatives": 0.22000000000000003,
+    "acknowledges_uncertainty": 0.22000000000000003,
+    "flags_missing_info": 0.24000000000000005,
+    "flags_security": 0.24,
+    "flags_performance": 0.23000000000000004,
+    "flags_scalability": 0.24
+  },
+  "overall_score": 0.526,
+  "overall_improvement": 0.23000000000000004,
+  "baseline_avg": 0.296
+}

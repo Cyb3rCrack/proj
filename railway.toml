@@ -1,0 +1,22 @@
+# Railway Deployment Configuration
+# This file configures how Railway builds and deploys your application
+
+[build]
+builder = "nixpacks"
+buildCommand = "python build_release.py && pip install -r requirements-prod.txt"
+
+[deploy]
+startCommand = "gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --access-logfile - --error-logfile - wsgi:app"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[environments.production]
+PORT = 8000
+FLASK_ENV = "production"
+LOG_LEVEL = "INFO"
+
+[healthchecks]
+enabled = true
+path = "/health"
+initialDelaySeconds = 30
+intervalSeconds = 30

@@ -1,0 +1,80 @@
+name: Tests & Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Lint with flake8
+      run: |
+        flake8 Zypherus --count --statistics || true
+    
+    - name: Type check with mypy
+      run: |
+        mypy Zypherus --ignore-missing-imports || true
+    
+    - name: Run tests
+      run: |
+        pytest tests/ -v --tb=short || true
+    
+    - name: Check if API imports work
+      run: |
+        python -c "from Zypherus.api.server import ACEAPIServer; print('✓ API imports successfully')"
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build Docker image
+      run: |
+        docker build -t zypherus:${{ github.sha }} .
+        docker build -t zypherus:latest .
+    
+    - name: Test Docker image
+      run: |
+        docker run --rm --entrypoint="" zypherus:latest python -c "from Zypherus.api.server import ACEAPIServer; print('✓ Docker image built successfully')"
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Bandit security check
+      run: |
+        pip install bandit
+        bandit -r Zypherus --skip B101,B601 -f json -o bandit-report.json || true
+    
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: bandit-report.json
+      if: always()

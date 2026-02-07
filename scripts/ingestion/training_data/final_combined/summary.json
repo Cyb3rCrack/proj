@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-05T23:39:41.697939",
+  "total_items": 282,
+  "phase1_count": 206,
+  "phase2_count": 71,
+  "phase3_count": 5,
+  "distribution": {
+    "phase1_pct": 73.04964539007092,
+    "phase2_pct": 25.177304964539008,
+    "phase3_pct": 1.7730496453900708
+  },
+  "note": "Phase 3 at scale would have 300+ items. Currently 5 for demonstration."
+}

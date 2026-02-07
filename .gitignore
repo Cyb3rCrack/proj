@@ -9,6 +9,11 @@ __pycache__/
 venv/
 env/
 
+# Environment configuration (SENSITIVE)
+.env
+.env.local
+.env.*.local
+
 # Model / cache junk
 .cache/
 *.faiss
@@ -20,3 +25,19 @@ belief_graph.json
 .DS_Store
 Thumbs.db
 .vscode/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Build / Distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Production deployment
+__obfuscated__/
+*.obfuscated.pyc
+railway_deploy/

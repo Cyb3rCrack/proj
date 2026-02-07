@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-02-05T23:16:41.938962",
+  "total_items": 206,
+  "collection_stats": {
+    "fetched": 500,
+    "ranked": 500,
+    "extracted": 220,
+    "passed_gates": 212,
+    "deduplicated": 206
+  },
+  "quality_distribution": {
+    "silver": 134,
+    "bronze": 72
+  },
+  "rank_distribution": {
+    "ARCHITECTURE_CHANGE": 45,
+    "REJECTED_APPROACH": 20,
+    "PERF_SECURITY": 94,
+    "DISCUSSION": 7,
+    "BASIC_FIX": 40
+  },
+  "language_distribution": {
+    "go": 36,
+    "unknown": 113,
+    "cpp": 25,
+    "c": 21,
+    "python": 9,
+    "rust": 2
+  },
+  "avg_quality_score": 0.5677184466019417
+}

@@ -1,0 +1,58 @@
+{
+  "name": "Zypherus Training Data Pipeline",
+  "version": "1.0",
+  "created": "2026-02-05T23:47:36.200650",
+  "components": {
+    "phase1": {
+      "name": "GitHub PR Collection",
+      "items": 206,
+      "quality_avg": 0.57,
+      "script": "collect_phase1_real.py",
+      "output": "training_data/phase1/collected.jsonl"
+    },
+    "phase2": {
+      "name": "Postmortem/CVE Collection",
+      "items": 71,
+      "quality_avg": 0.44,
+      "script": "collect_phase2_real.py",
+      "output": "training_data/phase2/collected.jsonl"
+    },
+    "phase3": {
+      "name": "Git History Evolution",
+      "items": 300,
+      "quality_avg": 0.64,
+      "script": "phase3_full_scale.py",
+      "output": "training_data/phase3_full/collected.jsonl"
+    }
+  },
+  "final_dataset": {
+    "total_items": 577,
+    "path": "scripts/ingestion/training_data/final_dataset_full_scale/collected.jsonl",
+    "format": "JSONL",
+    "encoding": "UTF-8"
+  },
+  "evaluation": {
+    "baseline_avg": 0.296,
+    "post_phase12_avg": 0.526,
+    "projected_phase3_avg": 0.576,
+    "metrics": [
+      "explains_why",
+      "flags_tradeoff",
+      "mentions_constraint",
+      "refuses_oversimplify",
+      "suggests_alternatives",
+      "acknowledges_uncertainty",
+      "flags_missing_info",
+      "flags_security",
+      "flags_performance",
+      "flags_scalability"
+    ]
+  },
+  "deployment": {
+    "integration_module": "ace/config/training_integration.py",
+    "api_budget_used": 2000,
+    "api_budget_total": 5000,
+    "github_projects_analyzed": 15,
+    "total_collection_time_hours": 8
+  }
+}

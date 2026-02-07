@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-02-05T23:28:23.484193",
+  "total_items": 277,
+  "phase1_count": 206,
+  "phase2_count": 71,
+  "distribution": {
+    "phase1_pct": 74.36823104693141,
+    "phase2_pct": 25.63176895306859
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-02-05T23:28:23.537624",
+  "baseline_scores": {
+    "explains_why": 0.35,
+    "flags_tradeoff": 0.28,
+    "mentions_constraint": 0.32,
+    "refuses_oversimplify": 0.25,
+    "suggests_alternatives": 0.3,
+    "acknowledges_uncertainty": 0.33,
+    "flags_missing_info": 0.29,
+    "flags_security": 0.27,
+    "flags_performance": 0.31,
+    "flags_scalability": 0.26
+  },
+  "metric_scores": {},
+  "overall_score": 0.296,
+  "metric_count": 10,
+  "improvement_target": 0.5,
+  "improvement_required": 0.20400000000000001
+}

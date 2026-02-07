@@ -1,0 +1,50 @@
+{
+  "checkpoints": [
+    {
+      "version": 1,
+      "timestamp": 1770264809.3733723,
+      "data_hash": "fa8e7159bda8eb53c5ff67371996cef2ab890821caa8eac6822b161c7c45b7b2",
+      "compression_ratio": 0.5665529010238908,
+      "metadata": {
+        "size_original": 293,
+        "size_compressed": 166
+      },
+      "description": "Test checkpoint"
+    },
+    {
+      "version": 2,
+      "timestamp": 1770264977.7119029,
+      "data_hash": "b07713727cdf192ce233dab655f1ef08229b0a9873a4e93239f99fd2c9344134",
+      "compression_ratio": 1.2765957446808511,
+      "metadata": {
+        "size_original": 47,
+        "size_compressed": 60
+      },
+      "description": "Test"
+    },
+    {
+      "version": 3,
+      "timestamp": 1770265012.896258,
+      "data_hash": "08975786ae957e8d2e2e732f4dfc124a204a608b2606efe39f1c0fda50f7373f",
+      "compression_ratio": 1.2765957446808511,
+      "metadata": {
+        "size_original": 47,
+        "size_compressed": 60
+      },
+      "description": "Test"
+    },
+    {
+      "version": 4,
+      "timestamp": 1770265089.7075813,
+      "data_hash": "c7c8d38c0a434f9b8c317c2d8ef6d8017731dec5126e92f083d7c4a1e6c58c88",
+      "compression_ratio": 1.2765957446808511,
+      "metadata": {
+        "size_original": 47,
+        "size_compressed": 60
+      },
+      "description": "Test"
+    }
+  ],
+  "current_version": 4,
+  "last_updated": 1770265089.709686
+}
