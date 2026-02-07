@@ -210,7 +210,7 @@ class ZypherusAPIServer:
         # Simple chat UI
         @app.route("/chat", methods=["GET"])
         def chat_ui():
-                """Minimal chat UI for streaming conversations."""
+                """Enhanced chat UI with auto-greeting, typing indicator, and error handling."""
                 html = """<!doctype html>
 <html lang=\"en\">
     <head>
@@ -226,6 +226,7 @@ class ZypherusAPIServer:
         --accent-2: #38bdf8;
         --text: #e5e7eb;
         --muted: #94a3b8;
+        --error: #ef4444;
             }
             * { box-sizing: border-box; }
             body {
@@ -246,6 +247,8 @@ class ZypherusAPIServer:
         border-radius: 20px;
         box-shadow: 0 30px 70px rgba(2, 6, 23, 0.6);
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
             }
             header {
         padding: 20px 24px;
@@ -279,14 +282,16 @@ class ZypherusAPIServer:
         display: flex;
         flex-direction: column;
         gap: 14px;
+        flex: 1;
             }
             .msg {
         max-width: 80%;
         padding: 12px 14px;
         border-radius: 14px;
         line-height: 1.5;
-        animation: fadeIn 0.2s ease-out;
+        animation: fadeIn 0.3s ease-out;
         white-space: pre-wrap;
+        word-wrap: break-word;
             }
             .msg.user {
         align-self: flex-end;
@@ -297,6 +302,30 @@ class ZypherusAPIServer:
         align-self: flex-start;
         background: rgba(56,189,248,0.12);
         border: 1px solid rgba(56,189,248,0.35);
+            }
+            .msg.error {
+        align-self: flex-start;
+        background: rgba(239,68,68,0.15);
+        border: 1px solid rgba(239,68,68,0.35);
+        color: #fca5a5;
+            }
+            .typing {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+            }
+            .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-2);
+        animation: typing 1.2s infinite;
+            }
+            .dot:nth-child(2) { animation-delay: 0.2s; }
+            .dot:nth-child(3) { animation-delay: 0.4s; }
+            @keyframes typing {
+        0%, 60%, 100% { opacity: 0.3; }
+        30% { opacity: 1; }
             }
             .input-bar {
         display: flex;
@@ -316,6 +345,12 @@ class ZypherusAPIServer:
         color: var(--text);
         padding: 12px;
         font-size: 14px;
+        font-family: inherit;
+            }
+            textarea:focus { 
+        outline: none;
+        border-color: rgba(34,197,94,0.5);
+        background: rgba(2,6,23,0.8);
             }
             button {
         font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -326,10 +361,35 @@ class ZypherusAPIServer:
         border-radius: 12px;
         cursor: pointer;
         font-weight: 600;
+        white-space: nowrap;
+        transition: opacity 0.2s;
             }
+            button:hover:not(:disabled) { opacity: 0.9; }
             button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+            }
+            .toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        padding: 14px 18px;
+        background: rgba(34,197,94,0.2);
+        border: 1px solid rgba(34,197,94,0.5);
+        border-radius: 10px;
+        font-size: 13px;
+        animation: slideIn 0.3s ease-out;
+        z-index: 9999;
+            }
+            @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
             }
             @keyframes fadeIn {
         from { opacity: 0; transform: translateY(6px); }
@@ -343,12 +403,12 @@ class ZypherusAPIServer:
         <span class=\"badge\">LIVE</span>
         <div>
             <h1>Zypherus Chat</h1>
-            <div class=\"sub\">Streaming SSE - Conversation memory enabled</div>
+            <div class=\"sub\">For coding & tech questions | Full memory enabled</div>
         </div>
             </header>
             <div id=\"chat\" class=\"chat\"></div>
             <div class=\"input-bar\">
-        <textarea id=\"input\" placeholder=\"Ask Zypherus something...\"></textarea>
+        <textarea id=\"input\" placeholder=\"Ask Zypherus for coding help...\"></textarea>
         <button id=\"send\" onclick=\"sendMessage()\">Send</button>
             </div>
         </div>
@@ -357,6 +417,15 @@ class ZypherusAPIServer:
             const input = document.getElementById('input');
             const sendBtn = document.getElementById('send');
             let conversationId = null;
+            let hasGreeted = false;
+
+            function showToast(message, duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), duration);
+            }
 
             function addMessage(role, text) {
         const bubble = document.createElement('div');
@@ -367,12 +436,39 @@ class ZypherusAPIServer:
         return bubble;
             }
 
+            function addTypingIndicator() {
+        const bubble = document.createElement('div');
+        bubble.className = 'msg assistant';
+        bubble.innerHTML = '<div class=\"typing\"><div class=\"dot\"></div><div class=\"dot\"></div><div class=\"dot\"></div></div>';
+        chat.appendChild(bubble);
+        chat.scrollTop = chat.scrollHeight;
+        return bubble;
+            }
+
+            function autoGreet() {
+        if (hasGreeted) return;
+        hasGreeted = true;
+        const greetings = [
+            'Hey! I\\'m Zypherus. Ask me about coding, debugging, or tech architecture.',
+            'Ready to help with your code! Ask me anything about programming.',
+            'Welcome! I\\'m here for coding questions and tech discussions.'
+        ];
+        const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+        addMessage('assistant', greeting);
+        setTimeout(() => showToast('Memory initialized ✓'), 500);
+            }
+
             async function sendMessage() {
         const message = input.value.trim();
-        if (!message) return;
+        if (!message) {
+            input.focus();
+            return;
+        }
+        
         addMessage('user', message);
         input.value = '';
         sendBtn.disabled = true;
+        input.disabled = true;
 
         const payload = {
             message,
@@ -380,40 +476,72 @@ class ZypherusAPIServer:
             stream: true
         };
 
-        const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        try {
+            const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+            });
 
-        if (!conversationId) {
-            conversationId = res.headers.get('X-Conversation-Id');
-        }
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let assistantText = '';
-        const assistantBubble = addMessage('assistant', '');
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
-            for (const line of lines) {
-                if (!line.startsWith('data: ')) continue;
-                const data = line.slice(6);
-                if (data === '[DONE]') {
-                    sendBtn.disabled = false;
-                    return;
-                }
-                assistantText += data;
-                assistantBubble.textContent = assistantText;
-                chat.scrollTop = chat.scrollHeight;
-            }
-        }
+            if (!res.ok) {
+        const err = await res.text();
+        addMessage('error', `Server error: ${res.status} ${res.statusText}\\n${err}`);
         sendBtn.disabled = false;
+        input.disabled = false;
+        return;
             }
+
+            if (!conversationId) {
+        conversationId = res.headers.get('X-Conversation-Id');
+            }
+
+            const typingBubble = addTypingIndicator();
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let assistantText = '';
+
+            while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\\n');
+        for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6);
+            if (data === '[DONE]') {
+                chat.removeChild(typingBubble);
+                addMessage('assistant', assistantText);
+                sendBtn.disabled = false;
+                input.disabled = false;
+                input.focus();
+                return;
+            }
+            assistantText += data;
+            chat.scrollTop = chat.scrollHeight;
+        }
+            }
+        } catch (err) {
+            addMessage('error', `Error: ${err.message}. Check browser console for details.`);
+            console.error('Chat error:', err);
+            sendBtn.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
+            }
+
+            // Initialize
+            window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(autoGreet, 300);
+        input.focus();
+            });
+
+            // Send on Ctrl+Enter
+            input.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+            });
         </script>
     </body>
 </html>

@@ -130,9 +130,9 @@ class IngestionFilter:
 	]
 	
 	# Minimum quality thresholds
-	MIN_LENGTH = 30  # Characters (not too short to be meaningful)
+	MIN_LENGTH = 10  # Characters (allow short factual inputs)
 	MAX_LENGTH = 50000  # Characters (sanity limit)
-	MIN_WORDS = 5  # At least a few words
+	MIN_WORDS = 2  # Allow short definitions
 	
 	@staticmethod
 	def is_valid_for_ingestion(text: str, strict: bool = True) -> tuple[bool, Optional[str]]:
