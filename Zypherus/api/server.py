@@ -210,115 +210,132 @@ class ZypherusAPIServer:
         # Simple chat UI
         @app.route("/chat", methods=["GET"])
         def chat_ui():
-                """Enhanced chat UI with auto-greeting, typing indicator, and error handling."""
+                """Premium dark theme chat UI with Z logo and optimized performance."""
                 html = """<!doctype html>
 <html lang=\"en\">
     <head>
         <meta charset=\"utf-8\" />
         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-        <title>Zypherus Chat</title>
+        <title>Zypherus</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
-            :root {
-        --bg: #0f172a;
-        --panel: #111827;
-        --accent: #22c55e;
-        --accent-2: #38bdf8;
-        --text: #e5e7eb;
-        --muted: #94a3b8;
-        --error: #ef4444;
-            }
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
             * { box-sizing: border-box; }
-            body {
+            html, body {
         margin: 0;
-        font-family: 'Space Grotesk', system-ui, -apple-system, Segoe UI, sans-serif;
-        color: var(--text);
-        background: radial-gradient(1200px 800px at 10% 10%, #1e293b, #0b1020 60%) fixed;
-        min-height: 100vh;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+            }
+            body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #000000;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+            }
+            .container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #000000;
+            }
+            header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 24px;
+        border-bottom: 1px solid #222222;
+        background: #000000;
+            }
+            .logo {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 24px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #000000;
+        font-family: 'Inter', sans-serif;
+        box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
             }
-            .shell {
-        width: min(980px, 95vw);
-        background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(15,23,42,0.95));
-        border: 1px solid rgba(148,163,184,0.2);
-        border-radius: 20px;
-        box-shadow: 0 30px 70px rgba(2, 6, 23, 0.6);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-            }
-            header {
-        padding: 20px 24px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid rgba(148,163,184,0.15);
-        background: rgba(15,23,42,0.8);
-            }
-            .badge {
-        font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 12px;
-        color: #0f172a;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        padding: 4px 10px;
-        border-radius: 999px;
-            }
-            h1 {
-        font-size: 20px;
+            .header-text h1 {
         margin: 0;
-        font-weight: 600;
+        font-size: 24px;
+        font-weight: 700;
+        color: #ff0000;
+        letter-spacing: -0.5px;
             }
-            .sub {
-        color: var(--muted);
-        font-size: 14px;
+            .header-text p {
+        margin: 2px 0 0 0;
+        font-size: 13px;
+        color: #888888;
+        font-weight: 400;
             }
-            .chat {
-        padding: 20px 24px;
-        height: min(70vh, 560px);
+            .chat-area {
+        flex: 1;
         overflow-y: auto;
+        padding: 20px 24px;
         display: flex;
         flex-direction: column;
-        gap: 14px;
-        flex: 1;
+        gap: 12px;
+        background: #000000;
+            }
+            .chat-area::-webkit-scrollbar {
+        width: 6px;
+            }
+            .chat-area::-webkit-scrollbar-track {
+        background: transparent;
+            }
+            .chat-area::-webkit-scrollbar-thumb {
+        background: #333333;
+        border-radius: 3px;
+            }
+            .chat-area::-webkit-scrollbar-thumb:hover {
+        background: #444444;
             }
             .msg {
-        max-width: 80%;
+        max-width: 75%;
         padding: 12px 14px;
-        border-radius: 14px;
+        border-radius: 12px;
         line-height: 1.5;
         animation: fadeIn 0.3s ease-out;
         white-space: pre-wrap;
         word-wrap: break-word;
+        font-size: 14px;
             }
             .msg.user {
         align-self: flex-end;
-        background: rgba(34,197,94,0.15);
-        border: 1px solid rgba(34,197,94,0.35);
+        background: #ff0000;
+        color: #ffffff;
+        border: none;
             }
             .msg.assistant {
         align-self: flex-start;
-        background: rgba(56,189,248,0.12);
-        border: 1px solid rgba(56,189,248,0.35);
+        background: #1a1a1a;
+        color: #e0e0e0;
+        border: 1px solid #333333;
             }
             .msg.error {
         align-self: flex-start;
-        background: rgba(239,68,68,0.15);
-        border: 1px solid rgba(239,68,68,0.35);
-        color: #fca5a5;
+        background: #2a0000;
+        border: 1px solid #ff4444;
+        color: #ff8888;
             }
             .typing {
         display: flex;
         gap: 4px;
         align-items: center;
+        height: 18px;
             }
             .dot {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--accent-2);
+        background: #ff0000;
         animation: typing 1.2s infinite;
             }
             .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -327,57 +344,71 @@ class ZypherusAPIServer:
         0%, 60%, 100% { opacity: 0.3; }
         30% { opacity: 1; }
             }
-            .input-bar {
+            .input-section {
         display: flex;
-        gap: 12px;
-        padding: 18px 24px 22px;
-        border-top: 1px solid rgba(148,163,184,0.15);
-        background: rgba(15,23,42,0.85);
+        gap: 10px;
+        padding: 16px 24px;
+        border-top: 1px solid #222222;
+        background: #000000;
             }
             textarea {
         flex: 1;
-        min-height: 48px;
-        max-height: 140px;
+        min-height: 44px;
+        max-height: 120px;
         resize: vertical;
-        border-radius: 12px;
-        border: 1px solid rgba(148,163,184,0.25);
-        background: rgba(2,6,23,0.6);
-        color: var(--text);
-        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #333333;
+        background: #111111;
+        color: #ffffff;
+        padding: 10px 12px;
         font-size: 14px;
-        font-family: inherit;
+        font-family: 'Inter', sans-serif;
+        transition: border-color 0.2s, background 0.2s;
             }
-            textarea:focus { 
+            textarea:focus {
         outline: none;
-        border-color: rgba(34,197,94,0.5);
-        background: rgba(2,6,23,0.8);
+        border-color: #ff0000;
+        background: #1a1a1a;
+            }
+            textarea::placeholder {
+        color: #666666;
             }
             button {
-        font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        background: linear-gradient(135deg, #ff0000, #cc0000);
         border: none;
-        color: #0b1020;
-        padding: 12px 18px;
-        border-radius: 12px;
+        color: #ffffff;
+        padding: 10px 22px;
+        border-radius: 8px;
         cursor: pointer;
         font-weight: 600;
+        font-size: 14px;
         white-space: nowrap;
-        transition: opacity 0.2s;
+        transition: transform 0.15s, box-shadow 0.15s;
+        box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
             }
-            button:hover:not(:disabled) { opacity: 0.9; }
+            button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 0, 0, 0.3);
+            }
+            button:active:not(:disabled) {
+        transform: translateY(0);
+            }
             button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+                transform: none;
             }
             .toast {
         position: fixed;
-        bottom: 30px;
-        right: 30px;
-        padding: 14px 18px;
-        background: rgba(34,197,94,0.2);
-        border: 1px solid rgba(34,197,94,0.5);
-        border-radius: 10px;
+        bottom: 24px;
+        right: 24px;
+        padding: 12px 16px;
+        background: #1a1a1a;
+        border: 1px solid #ff0000;
+        border-radius: 8px;
+        color: #ff0000;
         font-size: 13px;
+        font-weight: 500;
         animation: slideIn 0.3s ease-out;
         z-index: 9999;
             }
@@ -392,22 +423,22 @@ class ZypherusAPIServer:
         }
             }
             @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(6px); }
+        from { opacity: 0; transform: translateY(4px); }
         to { opacity: 1; transform: translateY(0); }
             }
         </style>
     </head>
     <body>
-        <div class=\"shell\">
+        <div class=\"container\">
             <header>
-        <span class=\"badge\">LIVE</span>
-        <div>
+        <div class=\"logo\">Z</div>
+        <div class=\"header-text\">
             <h1>Zypherus Chat</h1>
-            <div class=\"sub\">For coding & tech questions | Full memory enabled</div>
+            <p>For coding & tech questions</p>
         </div>
             </header>
-            <div id=\"chat\" class=\"chat\"></div>
-            <div class=\"input-bar\">
+            <div id=\"chat\" class=\"chat-area\"></div>
+            <div class=\"input-section\">
         <textarea id=\"input\" placeholder=\"Ask Zypherus for coding help...\"></textarea>
         <button id=\"send\" onclick=\"sendMessage()\">Send</button>
             </div>
@@ -419,7 +450,7 @@ class ZypherusAPIServer:
             let conversationId = null;
             let hasGreeted = false;
 
-            function showToast(message, duration = 3000) {
+            function showToast(message, duration = 2500) {
         const toast = document.createElement('div');
         toast.className = 'toast';
         toast.textContent = message;
@@ -449,13 +480,13 @@ class ZypherusAPIServer:
         if (hasGreeted) return;
         hasGreeted = true;
         const greetings = [
-            'Hey! I\\'m Zypherus. Ask me about coding, debugging, or tech architecture.',
-            'Ready to help with your code! Ask me anything about programming.',
-            'Welcome! I\\'m here for coding questions and tech discussions.'
+            'Hey! I\\'m Zypherus. Ask me about coding, debugging, or architecture.',
+            'Ready to crush some code problems! What\\'s on your mind?',
+            'Welcome! Ask me anything about programming and tech.'
         ];
         const greeting = greetings[Math.floor(Math.random() * greetings.length)];
         addMessage('assistant', greeting);
-        setTimeout(() => showToast('Memory initialized ✓'), 500);
+        setTimeout(() => showToast('Memory ready ✓'), 400);
             }
 
             async function sendMessage() {
@@ -485,9 +516,10 @@ class ZypherusAPIServer:
 
             if (!res.ok) {
         const err = await res.text();
-        addMessage('error', `Server error: ${res.status} ${res.statusText}\\n${err}`);
+        addMessage('error', `Error ${res.status}: ${res.statusText}`);
         sendBtn.disabled = false;
         input.disabled = false;
+        input.focus();
         return;
             }
 
@@ -499,6 +531,7 @@ class ZypherusAPIServer:
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
             let assistantText = '';
+            let firstChunk = true;
 
             while (true) {
         const { value, done } = await reader.read();
@@ -507,21 +540,40 @@ class ZypherusAPIServer:
         const lines = chunk.split('\\n');
         for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
-            const data = line.slice(6);
+            const data = line.slice(6).trim();
             if (data === '[DONE]') {
                 chat.removeChild(typingBubble);
-                addMessage('assistant', assistantText);
+                if (assistantText) {
+                    addMessage('assistant', assistantText);
+                }
                 sendBtn.disabled = false;
                 input.disabled = false;
                 input.focus();
                 return;
             }
-            assistantText += data;
-            chat.scrollTop = chat.scrollHeight;
+            if (data) {
+                assistantText += data;
+                if (firstChunk) {
+                    chat.removeChild(typingBubble);
+                    firstChunk = false;
+                }
+                const msgEl = chat.lastElementChild;
+                if (msgEl && msgEl.classList.contains('assistant') && !msgEl.classList.contains('msg error')) {
+                    msgEl.textContent = assistantText;
+                } else {
+                    chat.appendChild((() => {
+                        const b = document.createElement('div');
+                        b.className = 'msg assistant';
+                        b.textContent = assistantText;
+                        return b;
+                    })());
+                }
+                chat.scrollTop = chat.scrollHeight;
+            }
         }
             }
         } catch (err) {
-            addMessage('error', `Error: ${err.message}. Check browser console for details.`);
+            addMessage('error', `Error: ${err.message}`);
             console.error('Chat error:', err);
             sendBtn.disabled = false;
             input.disabled = false;
@@ -531,13 +583,13 @@ class ZypherusAPIServer:
 
             // Initialize
             window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(autoGreet, 300);
+        setTimeout(autoGreet, 200);
         input.focus();
             });
 
-            // Send on Ctrl+Enter
+            // Send on Enter (not Shift+Enter to allow multiline)
             input.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
@@ -575,10 +627,11 @@ class ZypherusAPIServer:
                         ).to_dict()), 500
 
                 messages = store.append_message(conversation_id, "user", message)
-                max_history = int(os.getenv("CHAT_HISTORY_MAX", "20"))
+                # Keep full conversation history for context, but reduce tokens for speed
+                max_history = int(os.getenv("CHAT_HISTORY_MAX", "100"))
                 system_prompt = os.getenv(
                         "ZYPHERUS_SYSTEM_PROMPT",
-                        "You are Zypherus, an intelligent, conversational AI. You remember past context and respond naturally."
+                        "You are Zypherus, a concise and fast coding assistant. Answer directly and concisely."
                 ).strip()
                 recent = messages[-max_history:] if max_history > 0 else messages
                 prompt = _build_prompt(system_prompt, recent)

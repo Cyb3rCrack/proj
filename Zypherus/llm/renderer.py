@@ -126,14 +126,14 @@ class LLMRenderer:
 		self.total_budget_s = float(os.getenv("ACE_OLLAMA_BUDGET_S", "45"))
 
 		# All character limits configurable
-		self.max_context_chars = int(os.getenv("ZYPHERUS_MAX_CONTEXT_CHARS", "12000"))
-		self.max_chunk_chars = int(os.getenv("ZYPHERUS_MAX_CHUNK_CHARS", "1000"))
-		self.max_fallback_chars = int(os.getenv("ZYPHERUS_MAX_FALLBACK_CHARS", "200"))
+		self.max_context_chars = int(os.getenv("ZYPHERUS_MAX_CONTEXT_CHARS", "8000"))
+		self.max_chunk_chars = int(os.getenv("ZYPHERUS_MAX_CHUNK_CHARS", "800"))
+		self.max_fallback_chars = int(os.getenv("ZYPHERUS_MAX_FALLBACK_CHARS", "150"))
 
-		# Token limits for different operations
-		self.tokens_answer = int(os.getenv("ACE_TOKENS_ANSWER", "512"))
-		self.tokens_verify = int(os.getenv("ACE_TOKENS_VERIFY", "300"))
-		self.tokens_default = int(os.getenv("ACE_TOKENS_DEFAULT", "256"))
+		# Token limits for different operations (reduced for faster responses)
+		self.tokens_answer = int(os.getenv("ACE_TOKENS_ANSWER", "256"))
+		self.tokens_verify = int(os.getenv("ACE_TOKENS_VERIFY", "200"))
+		self.tokens_default = int(os.getenv("ACE_TOKENS_DEFAULT", "200"))
 
 		# Prompts configurable via env vars with defaults
 		self.prompt_answer_instructions = os.getenv(
