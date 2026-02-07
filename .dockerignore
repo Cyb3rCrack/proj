@@ -46,3 +46,15 @@ docs/old
 config/zypherus_config.json.local
 training_data/
 data/ingestion/
+
+# Large data files (runtime generated, not needed in build)
+memory.json
+memory.faiss
+claims.json
+belief_graph.json
+*.faiss
+youtube_ingestions.json
+ontology.json
+definitions.json
+relationships.json
+source_reliability.json
