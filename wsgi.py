@@ -130,3 +130,6 @@ if __name__ == "__main__":
     else:
         logger.info(f"Use gunicorn to start production server: gunicorn wsgi:app -w {workers}")
 
+
+# Create app instance for WSGI servers
+app = create_app()

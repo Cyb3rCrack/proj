@@ -758,6 +758,14 @@ ACEAPIServer = ZypherusAPIServer
 ACEAPIClient = ZypherusAPIClient
 
 
+def create_app():
+    """Factory function to create Flask app for WSGI servers."""
+    from ..core.ace import ACE
+    ace = ACE()
+    server = ZypherusAPIServer(ace)
+    return server.create_flask_app()
+
+
 __all__ = [
     "APIRequest",
     "APIResponse",
@@ -765,4 +773,5 @@ __all__ = [
     "ZypherusAPIClient",
     "ACEAPIServer",
     "ACEAPIClient",
+    "create_app",
 ]

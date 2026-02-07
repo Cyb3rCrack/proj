@@ -36,4 +36,4 @@ CMD ["gunicorn", \
      "--timeout", "120", \
      "--access-logfile", "-", \
      "--error-logfile", "-", \
-     "Zypherus.api.server:create_app()"]
+     "wsgi:app"]

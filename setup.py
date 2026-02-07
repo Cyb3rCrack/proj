@@ -40,12 +40,10 @@ setup(
         
         # Monitoring & error tracking
         "sentry-sdk>=1.5.0",
-        
-        # Testing
-        "pytest>=7.0.0",
     ],
     extras_require={
         "dev": [
+            "pytest>=7.0.0",
             "pytest-asyncio>=0.20.0",
             "black>=22.0.0",
             "flake8>=4.0.0",
