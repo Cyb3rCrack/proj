@@ -1,5 +1,3 @@
-"""Entry point for Zypherus."""
-
 from __future__ import annotations
 
 
