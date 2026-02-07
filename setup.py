@@ -21,13 +21,25 @@ setup(
         "requests>=2.28.0",
         "aiohttp>=3.8.0",
         
-        # Web framework
+        # Web framework & security
         "flask>=2.0.0",
+        "flask-cors>=4.0.0",
         "gunicorn>=20.0.0",
         "python-dotenv>=0.19.0",
+        "Werkzeug>=2.2.0",
+        "PyJWT>=2.6.0",
+        
+        # Data validation
+        "pydantic>=1.10.0",
         
         # Processing
         "psutil>=5.9.0",
+        
+        # Logging
+        "python-json-logger>=2.0.0",
+        
+        # Monitoring & error tracking
+        "sentry-sdk>=1.5.0",
         
         # Testing
         "pytest>=7.0.0",
