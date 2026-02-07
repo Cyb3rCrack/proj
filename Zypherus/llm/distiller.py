@@ -18,7 +18,7 @@ import time
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, Union
 
 from .renderer import LLMRenderer
 from ..utils.text import get_nlp
@@ -77,8 +77,8 @@ class Distiller:
         self.cache: Dict[str, CacheEntry] = OrderedDict()
         self.max_cache_size = int(os.getenv("ACE_CACHE_MAX_ENTRIES", "100"))
         
-        # Telemetry counters
-        self.metrics = {
+        # Telemetry counters (mixed int/float types)
+        self.metrics: Dict[str, Union[int, float]] = {
             "extract_facts_count": 0,
             "extract_facts_errors": 0,
             "extract_summary_count": 0,
@@ -90,7 +90,7 @@ class Distiller:
             "cache_misses": 0,
             "cache_evictions": 0,
             "timeout_errors": 0,
-            "total_latency_ms": 0,
+            "total_latency_ms": 0.0,
             "total_operations": 0,
         }
         self.metrics_lock = __import__('threading').Lock()
@@ -304,17 +304,18 @@ class Distiller:
             # Try spaCy first
             try:
                 nlp = get_nlp()
-                doc = nlp(text[:2000])
-                entities = [
-                    {"entity": ent.text, "label": ent.label_}
-                    for ent in doc.ents
-                ][:self.max_entities]
-                
-                if entities:
-                    self._set_cached(cache_key, entities)
-                    self._record_metric("extract_entities_count", latency_ms=(time.time() - start_time) * 1000)
-                    logger.info(f"Extracted {len(entities)} entities via spaCy")
-                    return entities
+                if nlp is not None:
+                    doc = nlp(text[:2000])
+                    entities = [
+                        {"entity": ent.text, "label": ent.label_}
+                        for ent in doc.ents
+                    ][:self.max_entities]
+                    
+                    if entities:
+                        self._set_cached(cache_key, entities)
+                        self._record_metric("extract_entities_count", latency_ms=(time.time() - start_time) * 1000)
+                        logger.info(f"Extracted {len(entities)} entities via spaCy")
+                        return entities
             except Exception as e:
                 logger.debug(f"spaCy fallback triggered: {e}")
                 self._record_metric("spacy_fallback_count")

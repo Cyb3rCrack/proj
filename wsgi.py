@@ -68,11 +68,11 @@ def create_app():
     # Setup query caching
     cache_ttl = int(os.getenv("CACHE_TTL_SECONDS", "3600"))
     cache_size = int(os.getenv("CACHE_MAX_SIZE", "1000"))
-    app.query_cache = QueryCache(ttl_seconds=cache_ttl, max_size=cache_size)
+    app.query_cache = QueryCache(ttl_seconds=cache_ttl, max_size=cache_size)  # type: ignore[attr-defined]
     logger.info(f"Query cache initialized (TTL: {cache_ttl}s, max: {cache_size} entries)")
     
     # Setup health checker
-    app.health_checker = HealthChecker(ace)
+    app.health_checker = HealthChecker(ace)  # type: ignore[attr-defined]
     logger.info("Health checker initialized")
     
     # Setup request validation
